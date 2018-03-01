@@ -1,0 +1,9 @@
+CHECK PROCESS rabbitmq-server with pidfile "/var/lib/rabbitmq/mnesia/{{ monit_rabbitmq_node_name }}.pid"
+  GROUP rabbitmq
+  START PROGRAM "/bin/systemctl start rabbitmq-server"
+  STOP PROGRAM "/bin/systemctl stop rabbitmq-server"
+  IF FAILED PORT {{ monit_rabbitmq_port }} THEN RESTART
+{% if monit_rabbitmq_management_port is defined %}
+  IF FAILED PORT {{ monit_rabbitmq_management_port }} THEN RESTART
+{% endif %}
+  IF DOES NOT EXIST FOR 3 CYCLES THEN RESTART

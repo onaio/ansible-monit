@@ -1,0 +1,12 @@
+check process celeryd-ona
+    with pidfile /var/run/celery-{{ service_name }}/{{ nginx_server_name }}.pid
+{% if uses_systemd == None or uses_systemd == False %}
+    start program = "/etc/init.d/celeryd-ona start" as uid root and gid root
+    stop program = "/etc/init.d/celeryd-ona stop" as uid root and gid root
+{% else %}
+    start program = "/bin/systemctl start celeryd-{{ service_name }}"
+    stop program = "/bin/systemctl stop celeryd-{{ service_name }}"
+{% endif %}
+    if 5 restarts within 10 cycles then timeout
+    if totalmem is greater than 3000.0 MB for 3 cycles then restart
+    group celery

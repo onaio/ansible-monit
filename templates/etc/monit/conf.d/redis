@@ -1,0 +1,6 @@
+ check process memcache with pidfile /var/run/redis/default.pid
+   group cache
+   group redis
+   start program = "service redis-server start"
+   stop program  = "service redis-server stop"
+   if failed host 127.0.0.1:6379 and protocol redis then restart

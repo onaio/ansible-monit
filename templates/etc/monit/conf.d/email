@@ -1,0 +1,15 @@
+set mail-format {
+    from: {{ no_reply_monit_email }}
+    subject: $SERVICE $EVENT on {{ ansible_ssh_host }}
+    message:
+Alert from {{ ansible_ssh_host }}
+Date: $DATE
+For $SERVICE ($EVENT) and take $ACTION
+--------------------------------------
+$DESCRIPTION
+}
+
+# alert recepients
+{% for user, email in email_admins %}
+set alert {{ email }} not on { instance }
+{% endfor %}

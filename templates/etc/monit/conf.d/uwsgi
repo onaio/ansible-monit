@@ -1,0 +1,15 @@
+check process uwsgi-{{ service_name }}
+    with pidfile {{ pid_file }}
+{% if uses_systemd is not defined or  uses_systemd == None or uses_systemd == False %}
+    start program = "/sbin/start {{ service_name }}" as uid root and gid root
+    stop program = "/sbin/stop {{ service_name }}" as uid root and gid root
+{% else %}
+    start program = "/bin/systemctl start {{ service_name }}" as uid root and gid root
+    stop program = "/bin/systemctl stop {{ service_name }}" as uid root and gid root
+{% endif %}
+    if totalmem is greater than {{ uwsgi_total_memory_limit }} MB for 3 cycles then restart
+    if totalmem is greater than {{ uwsgi_total_memory_limit }} MB for 3 cycles then exec /etc/monit/slack_notifications.sh
+    if cpu > 50% for 2 cycles then exec /etc/monit/slack_notifications.sh
+    if loadavg(5min) greater than 10 for 8 cycles then restart
+    if 20 restarts within 20 cycles then timeout
+    group uwsgi
