@@ -1,5 +1,5 @@
 ---
-- include_tasks: ubuntu.yaml
+- include_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
 - name: Empty monit config files directory
