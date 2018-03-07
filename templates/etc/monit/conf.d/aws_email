@@ -1,3 +1,0 @@
-set mailserver {{ aws_email_server }} port {{ aws_email_port }}
-    username "{{ aws_email_username }}" password "{{ aws_email_password }}"
-    using TLSV1 with timeout 15 seconds using hostname {{ aws_email_hostname }}

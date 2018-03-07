@@ -10,6 +10,6 @@ $DESCRIPTION
 }
 
 # alert recepients
-{% for user, email in email_admins %}
+{% for user, email in monit_email_admins %}
 set alert {{ email }} not on { instance }
 {% endfor %}

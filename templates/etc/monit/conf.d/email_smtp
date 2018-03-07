@@ -1,0 +1,3 @@
+set mailserver {{ monit_smtp_server }} port {{ monit_smtp_port }}
+    username "{{ monit_smtp_username }}" password "{{ monit_smtp_password }}"
+    using TLSV1 with timeout 15 seconds using hostname {{ ansible_hostname }}
