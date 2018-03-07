@@ -6,7 +6,7 @@ Use this role to setup Monit.
 Role Variables
 --------------
 
-Check [./defaults/main.yaml](./defaults/main.yaml) for default values for Ansible variables.
+Check [./defaults/main.yml](./defaults/main.yml) for default values for Ansible variables.
 
 Example Playbook
 ----------------
