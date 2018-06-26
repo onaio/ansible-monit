@@ -16,6 +16,7 @@ Playbook to setup Monit might look like:
     - name: Setup Monit
       hosts: all
           monit_scripts: ["monit", "nginx"]
+          monit_setup_mode: True
       roles:
         - role: monit
 

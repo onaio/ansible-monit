@@ -1,2 +1,21 @@
+# general
+monit_version: "1:5.16*"
 monit_template_scripts: []
 monit_scripts: []
+# Whether the role should setup monit or not. Setting monit_setup_mode
+# to true will:
+#  - Install and enable the monit service
+#  - clear /etc/monit/conf.d before copying over whatever's specified
+#    in monit_scripts and monit_template_scripts
+monit_setup_mode: False
+
+# nginx
+monit_nginx_pid_file: "/var/run/nginx.pid"
+monit_nginx_init_bin: "/bin/systemctl"
+monit_nginx_service_stop_script: "{{ monit_nginx_init_bin }} stop nginx"
+monit_nginx_service_start_script: "{{ monit_nginx_init_bin }} start nginx"
+monit_nginx_bin_path: "/usr/sbin/nginx"
+
+# slack
+monit_slack_channel: "#devops-logs"
+monit_slack_username: "Monit"

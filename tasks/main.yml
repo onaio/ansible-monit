@@ -1,12 +1,6 @@
 ---
-- include_tasks: ubuntu.yml
-  when: ansible_distribution == 'Ubuntu'
-
-- name: Empty monit config files directory
-  file:
-    path: /etc/monit/conf.d/*
-    state: absent
-  ignore_errors: yes
+- include_tasks: setup.yml
+  when: monit_setup_mode
 
 - name: Copy monit config files
   template:
@@ -14,6 +8,8 @@
     dest: "/etc/monit/conf.d/{{ item }}"
     mode: 0644
   with_items: "{{ monit_scripts }}"
+  notify:
+    - restart monit
 
 - name: Copy monit template config files
   template:
@@ -21,15 +17,5 @@
     dest: "/etc/monit/conf.d/{{ item }}-{{ service_name }}"
     mode: 0644
   with_items: "{{ monit_template_scripts }}"
-
-- name: Copy monit slack script
-  template:
-    src: "templates/etc/monit/slack_notifications.sh"
-    dest: "/etc/monit/slack_notifications.sh"
-    mode: 0744
-
-- name: Restart monit
-  service:
-    name: monit
-    state: restarted
-    enabled: yes
+  notify:
+    - restart monit
