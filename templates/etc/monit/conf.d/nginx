@@ -1,8 +1,8 @@
  check process nginx with pidfile {{ monit_nginx_pid_file }}
    group www
    group nginx
-   start program = "{{ monit_nginx_service_stop_script }}"
-   stop program = "{{ monit_nginx_service_start_script }}"
+   start program = "{{ monit_nginx_service_start_script }}"
+   stop program = "{{ monit_nginx_service_stop_script }}"
    if failed port 80 protocol http request "/" then restart
    if 5 restarts with 5 cycles then timeout
    depend nginx_bin

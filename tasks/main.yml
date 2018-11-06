@@ -10,6 +10,7 @@
   with_items: "{{ monit_scripts }}"
   notify:
     - restart monit
+    - enable monit plugins
 
 - name: Copy monit template config files
   template:
@@ -19,3 +20,4 @@
   with_items: "{{ monit_template_scripts }}"
   notify:
     - restart monit
+    - enable monit plugins
