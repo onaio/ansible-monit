@@ -21,12 +21,3 @@
   notify:
     - restart monit
     - enable monit plugins
-
-- name: Remove conf-enabled include in monitrc
-  lineinfile:
-    path: /etc/monit/monitrc
-    state: absent
-    line: 'include /etc/monit/conf-enabled/*'
-  notify:
-    - restart monit
-    - enable monit plugins
