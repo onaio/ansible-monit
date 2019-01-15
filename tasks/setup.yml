@@ -2,6 +2,14 @@
 - include_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
+- name: Copy monitrc configuration file
+  template:
+    src: "templates/etc/monit/monitrc.j2"
+    dest: "/etc/monit/monitrc"
+    mode: 0600
+  notify:
+    - restart monit
+
 - name: Delete monit config files directory
   file:
     path: /etc/monit/conf.d

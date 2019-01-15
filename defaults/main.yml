@@ -2,6 +2,8 @@
 monit_version: "1:5.16*"
 monit_template_scripts: []
 monit_scripts: []
+monit_log_file: "/var/log/monit.log"
+monit_check_interval: 120 # time interval to check services in seconds
 # Whether the role should setup monit or not. Setting monit_setup_mode
 # to true will:
 #  - Install and enable the monit service
