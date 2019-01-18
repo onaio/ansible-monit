@@ -5,3 +5,4 @@
     state: restarted
 - name: enable monit plugins
   shell: "monit monitor all"
+  ignore_errors: yes
