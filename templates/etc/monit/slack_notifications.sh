@@ -8,7 +8,7 @@
         \"icon_emoji\": \":ghost:\", \
         \"attachments\": [{\
              \"color\": \"warning\", \
-             \"pretext\": \"{{ ansible_hostname }} - {{ ansible_ssh_host }} | $MONIT_DATE\", \
+             \"pretext\": \"{{ ansible_hostname }} - {{ monit_hostname } | $MONIT_DATE\", \
              \"text\": \"$MONIT_SERVICE - $MONIT_DESCRIPTION\" \
         }], \
         \"link_names\": 1 \
