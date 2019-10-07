@@ -8,8 +8,9 @@
    depend on sshd_bin
    depend on sftp_bin
    depend on sshd_rc
-   depend on sshd_rsa_key
-   depend on sshd_dsa_key
+{% for curHostKey in monit_ssh_host_keys %}
+   depend on {{ curHostKey.name }}
+{% endfor %}
 
  check file sshd_bin with path /usr/sbin/sshd
    group sshd
@@ -19,14 +20,12 @@
    group sshd
    include /etc/monit/templates/rootbin
 
- check file sshd_rsa_key with path /etc/ssh/ssh_host_rsa_key
+{% for curHostKey in monit_ssh_host_keys %}
+ check file {{ curHostKey.name }} with path {{ curHostKey.path }}
    group sshd
    include /etc/monit/templates/rootstrict
 
- check file sshd_dsa_key with path /etc/ssh/ssh_host_dsa_key
-   group sshd
-   include /etc/monit/templates/rootstrict
-
+{% endfor %}
  check file sshd_rc with path /etc/ssh/sshd_config
    group sshd
    include /etc/monit/templates/rootrc

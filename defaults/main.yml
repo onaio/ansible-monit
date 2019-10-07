@@ -22,3 +22,9 @@ monit_nginx_bin_path: "/usr/sbin/nginx"
 monit_slack_channel: "#devops-logs"
 monit_slack_username: "Monit"
 monit_hostname: "{{ ansible_ssh_host }}"
+
+# ssh
+# SSH host keys to check if present
+monit_ssh_host_keys:
+  - name: "sshd_rsa_key"
+    path: "/etc/ssh/ssh_host_rsa_key"
