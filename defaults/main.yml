@@ -23,6 +23,14 @@ monit_slack_channel: "#devops-logs"
 monit_slack_username: "Monit"
 monit_hostname: "{{ ansible_ssh_host }}"
 
+# systemd
+monit_uses_systemd: true
+monit_systemctl_path: "/bin/systemctl"
+
+# Enketo
+monit_enketo_service_name: "pm2-enketo"
+monit_enketo_port: 8005
+
 # ssh
 # SSH host keys to check if present
 monit_ssh_host_keys:

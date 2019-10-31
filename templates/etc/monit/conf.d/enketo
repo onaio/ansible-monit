@@ -1,7 +1,12 @@
 check process enketo matching {{ monit_enketo_codebase_path }}/app.js
+{% if monit_uses_systemd == False %}
    start program = "/bin/bash -lc 'cd {{ monit_enketo_codebase_path }}/ && PM2_HOME={{ monit_enketo_home }}/.pm2 /usr/bin/pm2 app.js -n {{ monit_enketo_user }}'"  as uid {{ monit_enketo_user }} and gid {{ monit_enketo_group }}
    stop program  = "/bin/bash -lc 'cd {{ monit_enketo_codebase_path }}/ && PM2_HOME={{ monit_enketo_home }}/.pm2 /usr/bin/pm2 stop {{ monit_enketo_user }}'"  as uid {{ monit_enketo_user }} and gid {{ monit_enketo_group }}
-    if failed port 8005 type tcp for 3 cycles then restart
+{% else %}
+   start program = "{{ monit_systemctl_path }} start {{ monit_enketo_service_name }}"
+   stop program  = "{{ monit_systemctl_path }} stop {{ monit_enketo_service_name }}"
+{% endif %}
+    if failed port {{ monit_enketo_port }} type tcp for 3 cycles then restart
     if 20 restarts within 20 cycles then exec /etc/monit/slack_notifications.sh
     if 20 restarts within 20 cycles then timeout
     group pm2
