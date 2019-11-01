@@ -1,4 +1,4 @@
-check process uwsgi-{{ service_name }}
+check process {{ service_name }}
     with pidfile {{ pid_file }}
 {% if uses_systemd is not defined or  uses_systemd == None or uses_systemd == False %}
     start program = "/sbin/start {{ service_name }}" as uid root and gid root
