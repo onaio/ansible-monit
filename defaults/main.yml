@@ -11,6 +11,9 @@ monit_check_interval: 120 # time interval to check services in seconds
 #    in monit_scripts and monit_template_scripts
 monit_setup_mode: False
 
+# Whether the role should run the enable monit plugins handler
+monit_enable_plugins_handler: True
+
 # nginx
 monit_nginx_pid_file: "/var/run/nginx.pid"
 monit_nginx_init_bin: "/bin/systemctl"

@@ -3,5 +3,7 @@
   service:
     name: monit
     state: restarted
+
 - name: enable monit plugins
   shell: "monit monitor all"
+  when: monit_enable_plugins_handler
