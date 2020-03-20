@@ -1,4 +1,4 @@
-check process enketo matching {{ monit_enketo_codebase_path }}/app.js
+check process enketo matching {{ monit_enketo_home }}/.pm2 
 {% if monit_uses_systemd == False %}
    start program = "/bin/bash -lc 'cd {{ monit_enketo_codebase_path }}/ && PM2_HOME={{ monit_enketo_home }}/.pm2 /usr/bin/pm2 app.js -n {{ monit_enketo_user }}'"  as uid {{ monit_enketo_user }} and gid {{ monit_enketo_group }}
    stop program  = "/bin/bash -lc 'cd {{ monit_enketo_codebase_path }}/ && PM2_HOME={{ monit_enketo_home }}/.pm2 /usr/bin/pm2 stop {{ monit_enketo_user }}'"  as uid {{ monit_enketo_user }} and gid {{ monit_enketo_group }}
