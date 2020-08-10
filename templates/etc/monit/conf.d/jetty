@@ -3,7 +3,7 @@ check process jetty-{{ monit_jetty_service_name }}
     start program = "/sbin/start {{ monit_jetty_service_name }}" as uid root and gid root
     stop program = "/sbin/stop {{ monit_jetty_service_name }}" as uid root and gid root
     if totalmem is greater than {{ monit_jetty_total_memory_limit }} MB for 2 cycles then restart
-    if totalcpu > 90% for 2 cycles then exec /etc/monit/slack_notifications.sh
+    if totalcpu > 90% for 2 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
     if totalcpu > 90% for 2 cycles then restart
     if loadavg(5min) greater than 5 for 5 cycles then restart
     if 20 restarts within 20 cycles then timeout

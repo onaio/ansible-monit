@@ -8,8 +8,8 @@ check process {{ service_name }}
     stop program = "/bin/systemctl stop {{ service_name }}" as uid root and gid root
 {% endif %}
     if totalmem is greater than {{ uwsgi_total_memory_limit }} MB for 3 cycles then restart
-    if totalmem is greater than {{ uwsgi_total_memory_limit }} MB for 3 cycles then exec /etc/monit/slack_notifications.sh
-    if cpu > 50% for 2 cycles then exec /etc/monit/slack_notifications.sh
+    if totalmem is greater than {{ uwsgi_total_memory_limit }} MB for 3 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
+    if cpu > 50% for 2 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
     if loadavg(5min) greater than 10 for 8 cycles then restart
     if 20 restarts within 20 cycles then timeout
     group uwsgi
