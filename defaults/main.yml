@@ -1,5 +1,5 @@
 # general
-monit_version: "1:5.16*"
+monit_version: "1:5.*"
 monit_template_scripts: []
 monit_scripts: []
 monit_log_file: "/var/log/monit.log"
