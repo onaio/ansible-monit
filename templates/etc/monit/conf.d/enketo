@@ -7,6 +7,6 @@ check process enketo matching {{ monit_enketo_home }}/.pm2
    stop program  = "{{ monit_systemctl_path }} stop {{ monit_enketo_service_name }}"
 {% endif %}
     if failed port {{ monit_enketo_port }} type tcp for 3 cycles then restart
-    if 20 restarts within 20 cycles then exec /etc/monit/slack_notifications.sh
+    if 20 restarts within 20 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
     if 20 restarts within 20 cycles then timeout
     group pm2

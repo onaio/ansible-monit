@@ -28,11 +28,22 @@
   notify:
     - restart monit
 
-- name: Copy monit slack script
-  template:
-    src: "templates/etc/monit/slack_notifications.sh"
-    dest: "/etc/monit/slack_notifications.sh"
-    mode: 0744
+- name: Create the scripts directory
+  file:
+    path: "{{ monit_exec_script_dir }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Copy scripts
+  copy:
+    dest: "{{ monit_exec_script_dir }}/{{ item.name }}"
+    content: "{{ item.content }}"
+    mode: 0755
+    owner: root
+    group: root
+  with_items: "{{ monit_exec_scripts }}"
   notify:
     - restart monit
 

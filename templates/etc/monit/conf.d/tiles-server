@@ -2,6 +2,6 @@ check process tiles matching /home/tiles/app/app.js
    start program = "/bin/bash -lc 'cd /home/tiles/app/ && PM2_HOME=/home/tiles/.pm2 /usr/bin/pm2 app.js -n tiles'"  as uid tiles and gid www-data
    stop program  = "/bin/bash -lc 'cd /home/tiles/app/ && PM2_HOME=/home/tiles/.pm2 /usr/bin/pm2 stop tiles'"  as uid tiles and gid www-data
     if failed port 8005 type tcp for 3 cycles then restart
-    if 20 restarts within 20 cycles then exec /etc/monit/slack_notifications.sh
+    if 20 restarts within 20 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
     if 20 restarts within 20 cycles then timeout
     group pm2
