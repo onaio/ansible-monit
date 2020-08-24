@@ -2,6 +2,8 @@
     group database
     start program = "/etc/init.d/postgresql start"
     stop  program = "/etc/init.d/postgresql stop"
- if failed host localhost port 5432 protocol pgsql then restart
- if failed host localhost port 5432 protocol pgsql then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
+{% for address in postgresql_listen_addresses %}
+ if failed host {{ address }} port 5432 protocol pgsql then restart
+ if failed host {{ address }} port 5432 protocol pgsql then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
+{% endfor %}
  if 5 restarts within 5 cycles then timeout
