@@ -103,6 +103,10 @@ monit_exec_scripts:
     content: "{{ monit_slack_notification_script }}"
   - name: "opsgenie-notification"
     content: "{{ monit_opsgenie_notification_script }}"
+  - name: "{{ monit_postgresql_number_slow_queries_script_name }}"
+    content: "{{ monit_postgresql_number_slow_query_script }}"
+  - name: "{{ monit_postgresql_number_connections_script_name }}"
+    content: "{{ monit_postgresql_number_connections_script }}"
 monit_slack_notification_script: |
   #!/bin/bash
   /usr/bin/curl \
@@ -133,3 +137,67 @@ monit_opsgenie_notification_script: |
       \"priority\":\"P3\"
   }"
 monit_opsgenie_api_key: ""
+monit_postgresql_system_user: "postgres"
+monit_postgresql_number_slow_query_script: |
+  #!/bin/bash
+  set -Eeuo pipefail
+
+  thresholdNoQueries={{ monit_postgresql_number_slow_queries_threshold }}
+  thresholdQueryTime="{{ monit_postgresql_number_slow_query_min_time }}"
+
+  noSlowQueries=$(runuser -l {{ monit_postgresql_system_user }} -c "psql --tuples-only -c \"SELECT count(pid) FROM pg_stat_activity where now() - query_start > interval '${thresholdQueryTime}' AND state != 'idle';\"" | xargs)
+
+  re='^[0-9]+$'
+  if ! [[ $noSlowQueries =~ $re ]] ; then
+    echo "Number of slow PostgreSQL queries is not a number: ${noSlowQueries}"
+    exit 1
+  fi
+
+  if [[ "$noSlowQueries" -gt "$thresholdNoQueries" ]] ; then
+    echo "More than ${thresholdNoQueries} PostgreSQL queries took longer than ${thresholdQueryTime} to execute"
+    exit 1
+  fi
+monit_postgresql_number_slow_queries_threshold: 1 # Number of queries that if deemed as slow, health check fails
+monit_postgresql_number_slow_query_min_time: "1 minute" # Time above which a running query will be deemed as slow
+monit_postgresql_number_slow_queries_script_name: "postgresql-number-slow-queries"
+monit_postgresql_number_connections_script: |
+  #!/bin/bash
+  set -Eeuo pipefail
+
+  connThreshold={{ monit_postgresql_number_connections_threshold }}
+
+  curConnections=$(runuser -l {{ monit_postgresql_system_user }} -c "psql --tuples-only -c \"SELECT sum(numbackends) FROM pg_stat_database;\"" | xargs)
+  maxConnections=$(runuser -l {{ monit_postgresql_system_user }} -c "psql --tuples-only -c \"SELECT setting FROM pg_settings WHERE name = 'max_connections';\"" | xargs)
+
+  expandedConnThreshold=$(python3 -c "print('%d' % round(${maxConnections} * ${connThreshold}))")
+
+  re='^[0-9]+$'
+  if ! [[ $curConnections =~ $re ]] ; then
+    echo "Current number of PostgreSQL connections is not a number: ${curConnections}"
+    exit 1
+  fi
+
+  if ! [[ $expandedConnThreshold =~ $re ]] ; then
+    echo "PostgreSQL connection threshold is not a number: ${expandedConnThreshold}"
+    exit 1
+  fi
+
+  if [[ "$curConnections" -gt "$expandedConnThreshold" ]] ; then
+    echo "PostgreSQL's current number of connections (${curConnections}) is more than ${expandedConnThreshold} which is ${connThreshold} of the maximum number of allowed connections (${maxConnections})"
+    exit 1
+  fi
+monit_postgresql_number_connections_threshold: 0.9 # Ratio of maximum number of PostgreSQL connections which if the number of active connections is crossed, the health check fails
+monit_postgresql_number_connections_script_name: "postgresql-number-connections"
+monit_postgresql_health_scripts:
+  - name: "{{ monit_postgresql_number_connections_script_name }}"
+    cycles: 3
+    timeout: "30 seconds"
+    exec_scripts:
+      - slack-notification
+      - opsgenie-notification
+  - name: "{{ monit_postgresql_number_slow_queries_script_name }}"
+    cycles: 3
+    timeout: "30 seconds"
+    exec_scripts:
+      - slack-notification
+      - opsgenie-notification

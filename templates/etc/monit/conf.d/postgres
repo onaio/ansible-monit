@@ -1,9 +1,16 @@
- check process postgresql with pidfile /var/lib/postgresql/{{ postgresql_version }}/main/postmaster.pid
+check process postgresql with pidfile /var/lib/postgresql/{{ monit_postgresql_version }}/main/postmaster.pid
     group database
     start program = "/etc/init.d/postgresql start"
     stop  program = "/etc/init.d/postgresql stop"
 {% for address in monit_postgresql_listen_addresses %}
- if failed host {{ address }} port 5432 protocol pgsql then restart
- if failed host {{ address }} port 5432 protocol pgsql then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
+if failed host {{ address }} port 5432 protocol pgsql then restart
+if failed host {{ address }} port 5432 protocol pgsql then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
 {% endfor %}
- if 5 restarts within 5 cycles then timeout
+if 5 restarts within 5 cycles then timeout
+{% for cur_health_script in monit_postgresql_health_scripts %}
+
+check program {{ cur_health_script.name }}-cycles_{{ cur_health_script.cycles }} path {{ monit_exec_script_dir }}/{{ cur_health_script.name }} timeout {{ cur_health_script.timeout }}
+{% for cur_script in cur_health_script.exec_scripts %}
+    if status != 0 for {{ cur_health_script.cycles }} cycles then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% endfor %}
+{% endfor %}
