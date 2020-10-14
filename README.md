@@ -86,6 +86,16 @@ monit_exec_scripts:
     https://hooks.slack.com/services/secret-slack-endpoint
 ```
 
+If monitoring PostgreSQL, set thresholds for number of slow queries, slow query time, and number of connection thresholds using:
+
+```yaml
+monit_postgresql_number_slow_queries_threshold: 1 # Number of queries that if deemed as slow, health check fails
+monit_postgresql_number_slow_query_min_time: "1 minute" # Time above which a running query will be deemed as slow
+monit_postgresql_number_connections_threshold: 0.9 # Ratio of maximum number of PostgreSQL connections which if the number of active connections is crossed, the health check fails
+```
+
+Make sure to also add `postgres` to the `monit_scripts` list.
+
 Check [./defaults/main.yml](./defaults/main.yml) for default values for Ansible variables.
 
 Example Playbook
