@@ -6,5 +6,5 @@
   when: not monit_install_only
 
 - name: enable monit plugins
-  shell: "monit monitor all"
+  command: "monit monitor all"
   when: not monit_install_only
