@@ -10,7 +10,7 @@ monit_check_interval: 120 # time interval to check services in seconds
 #  - Install and enable the monit service
 #  - clear /etc/monit/conf.d before copying over whatever's specified
 #    in monit_scripts and monit_template_scripts
-monit_setup_mode: False
+monit_setup_mode: false
 
 # nginx
 monit_nginx_pid_file: "/var/run/nginx.pid"
@@ -95,6 +95,12 @@ monit_system_cpu_usage_thresholds:
     cycles: 3
     exec_scripts:
       - slack-notification
+
+# ipsec
+monit_ipsec_host_name: "ipsec"
+monit_ipsec_host_address: ""
+monit_ipsec_exec_scripts:
+  - opsgenie-notification
 
 # executable scripts
 monit_default_exec_script: "slack-notification"
