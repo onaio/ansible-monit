@@ -1,7 +1,10 @@
-check host {{ monit_ipsec_host_name }} with address {{ monit_ipsec_host_address }}
+{% for ipsec_host in monit_ipsec_hosts.items() %}
+check host {{ ipsec_host.name }} with address {{ ipsec_host.address }}
     start program = "/etc/init.d/ipsec start"
     stop program = "/etc/init.d/ipsec stop"
     if failed ping then restart
-{% for cur_script in monit_ipsec_exec_scripts %}
-    if 3 restarts within 3 cycles then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% for script in ipsec_host.exec_scripts %}
+    if 3 restarts within 3 cycles then exec {{ monit_exec_script_dir }}/{{ script }}
+{% endfor %}
+
 {% endfor %}

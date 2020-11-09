@@ -62,6 +62,16 @@ monit_system_cpu_usage_thresholds:
       - slack-notification
 ```
 
+You can monitor IPSEC connections using the `monit_ipsec_hosts` variable:
+
+```yaml
+monit_ipsec_hosts:
+  - name: ipsec_orange  # name of the IPSEC connection
+    address: "10.123.23.2"  # the IPv4, IPv6 or hostname to ping to
+    exec_scripts:  # list of names of scripts to execute when ping fails
+      - opsgenie-notification
+```
+
 Define scripts Monit has access to (to run as monitors or actions to monitors):
 
 ```yaml
