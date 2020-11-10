@@ -97,10 +97,7 @@ monit_system_cpu_usage_thresholds:
       - slack-notification
 
 # ipsec
-monit_ipsec_host_name: "ipsec"
-monit_ipsec_host_address: ""
-monit_ipsec_exec_scripts:
-  - opsgenie-notification
+monit_ipsec_hosts: []
 
 # executable scripts
 monit_default_exec_script: "slack-notification"
