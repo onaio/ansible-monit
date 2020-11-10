@@ -1,4 +1,4 @@
-{% for ipsec_host in monit_ipsec_hosts.items() %}
+{% for ipsec_host in monit_ipsec_hosts %}
 check host {{ ipsec_host.name }} with address {{ ipsec_host.address }}
     start program = "/etc/init.d/ipsec start"
     stop program = "/etc/init.d/ipsec stop"
