@@ -1,7 +1,7 @@
 check process jetty-{{ monit_jetty_service_name }}
     with pidfile {{ monit_jetty_pid_file }}
-    start program = "/sbin/start {{ monit_jetty_service_name }}" as uid root and gid root
-    stop program = "/sbin/stop {{ monit_jetty_service_name }}" as uid root and gid root
+    start program = "/bin/systemctl start {{ monit_jetty_service_name }}" as uid root and gid root
+    stop program = "/bin/systemctl stop {{ monit_jetty_service_name }}" as uid root and gid root
     if totalmem is greater than {{ monit_jetty_total_memory_limit }} MB for 2 cycles then restart
     if totalcpu > 90% for 2 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
     if totalcpu > 90% for 2 cycles then restart
