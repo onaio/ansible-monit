@@ -160,7 +160,7 @@ monit_postgresql_number_slow_query_script: |
     echo "More than ${thresholdNoQueries} PostgreSQL queries took longer than ${thresholdQueryTime} to execute"
     exit 1
   fi
-monit_postgresql_number_slow_queries_threshold: 1 # Number of queries that if deemed as slow, health check fails
+monit_postgresql_number_slow_queries_threshold: 5 # Number of queries that if deemed as slow, health check fails
 monit_postgresql_number_slow_query_min_time: "1 minute" # Time above which a running query will be deemed as slow
 monit_postgresql_number_slow_queries_script_name: "postgresql-number-slow-queries"
 monit_postgresql_number_connections_script: |
