@@ -2,7 +2,10 @@
 check host {{ ipsec_host.name }} with address {{ ipsec_host.address }}
     start program = "/etc/init.d/ipsec start"
     stop program = "/etc/init.d/ipsec stop"
-    if failed ping then restart
+    if failed
+        port {{ ipsec_host.port }}
+        type {{ ipsec_host.type }}
+    then restart
 {% for script in ipsec_host.exec_scripts %}
     if 3 restarts within 3 cycles then exec {{ monit_exec_script_dir }}/{{ script }}
 {% endfor %}

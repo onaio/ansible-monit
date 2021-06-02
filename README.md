@@ -68,6 +68,8 @@ You can monitor IPSEC connections using the `monit_ipsec_hosts` variable:
 monit_ipsec_hosts:
   - name: ipsec_orange  # name of the IPSEC connection
     address: "10.123.23.2"  # the IPv4, IPv6 or hostname to ping to
+    port: 9999  # port to connect to
+    type: TCP  # either TCP or UDP
     exec_scripts:  # list of names of scripts to execute when ping fails
       - opsgenie-notification
 ```
