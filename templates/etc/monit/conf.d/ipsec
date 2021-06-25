@@ -1,7 +1,7 @@
 {% for ipsec_host in monit_ipsec_hosts %}
 check host {{ ipsec_host.name }} with address {{ ipsec_host.address }}
-    start program = "/etc/init.d/ipsec start"
-    stop program = "/etc/init.d/ipsec stop"
+    start program = "{{ monit_ipsec_bin_path }} start"
+    stop program = "{{ monit_ipsec_bin_path }} stop"
     if failed
         port {{ ipsec_host.port }}
         type {{ ipsec_host.type }}

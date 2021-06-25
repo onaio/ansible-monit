@@ -97,6 +97,7 @@ monit_system_cpu_usage_thresholds:
       - slack-notification
 
 # ipsec
+monit_ipsec_bin_path: "/usr/sbin/ipsec"
 monit_ipsec_hosts: []
 
 # executable scripts
