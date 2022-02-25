@@ -8,3 +8,4 @@
     - { package: monit, version: "{{ monit_version }}"}
   notify:
     - restart monit
+
