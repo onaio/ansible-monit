@@ -2,17 +2,26 @@
 - include_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
+- include_tasks: redhat.yml
+  when: ansible_facts['os_family'] == "RedHat"
+
+- include_vars: redhat.yml
+  when: ansible_facts["os_family"] == "RedHat"
+
+- include_vars: ubuntu.yml
+  when: ansible_facts["os_family"] == "Debian"
+
 - name: Copy monitrc configuration file
   template:
     src: "templates/etc/monit/monitrc.j2"
-    dest: "/etc/monit/monitrc"
+    dest: "{{ monit_configuration_path }}"
     mode: 0600
   notify:
     - restart monit
 
 - name: Delete monit config files directory
   file:
-    path: /etc/monit/conf.d
+    path: "{{ monit_includes }}"
     state: absent
   ignore_errors: yes
   notify:
@@ -20,7 +29,7 @@
 
 - name: Create monit config files directory
   file:
-    path: /etc/monit/conf.d
+    path: "{{ monit_includes }}"
     state: directory
     mode: 0755
     owner: root
@@ -50,4 +59,5 @@
 - name: Enable the Monit service
   service:
     name: monit
+    state: started
     enabled: yes

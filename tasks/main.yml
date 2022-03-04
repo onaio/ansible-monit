@@ -1,11 +1,17 @@
 ---
+- include_vars: redhat.yml
+  when: ansible_facts["os_family"] == "RedHat"
+
+- include_vars: ubuntu.yml
+  when: ansible_facts["os_family"] == "Debian"
+
 - include_tasks: setup.yml
   when: monit_setup_mode
 
 - name: Copy monit config files
   template:
     src: "templates/etc/monit/conf.d/{{ item }}"
-    dest: "/etc/monit/conf.d/{{ item }}"
+    dest: "{{ monit_includes }}/{{ item }}"
     mode: 0644
   with_items: "{{ monit_scripts }}"
   notify:
@@ -15,7 +21,7 @@
 - name: Copy monit template config files
   template:
     src: "templates/etc/monit/conf.d/{{ item }}"
-    dest: "/etc/monit/conf.d/{{ item }}-{{ service_name }}"
+    dest: "{{ monit_includes }}/{{ item }}-{{ service_name }}"
     mode: 0644
   with_items: "{{ monit_template_scripts }}"
   notify:
