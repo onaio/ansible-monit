@@ -11,14 +11,6 @@
 - include_vars: ubuntu.yml
   when: ansible_facts["os_family"] == "Debian"
 
-- name: Copy monitrc configuration file
-  template:
-    src: "templates/etc/monit/monitrc.j2"
-    dest: "{{ monit_configuration_path }}"
-    mode: 0600
-  notify:
-    - restart monit
-
 - name: Delete monit config files directory
   file:
     path: "{{ monit_includes }}"
@@ -34,6 +26,14 @@
     mode: 0755
     owner: root
     group: root
+  notify:
+    - restart monit
+
+- name: Copy monitrc configuration file
+  template:
+    src: "templates/etc/monit/monitrc.j2"
+    dest: "{{ monit_configuration_path }}"
+    mode: 0600
   notify:
     - restart monit
 
