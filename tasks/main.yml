@@ -8,6 +8,16 @@
 - include_tasks: setup.yml
   when: monit_setup_mode
 
+- name: Ensure monit config files directory is present
+  file:
+    path: "{{ monit_includes }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - restart monit
+
 - name: Copy monit config files
   template:
     src: "templates/etc/monit/conf.d/{{ item }}"
