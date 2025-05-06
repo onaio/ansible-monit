@@ -1,10 +1,11 @@
+---
 # general
 monit_version: "1:5.*"
 monit_install_only: false
 monit_template_scripts: []
 monit_scripts: []
 monit_log_file: "/var/log/monit.log"
-monit_check_interval: 120 # time interval to check services in seconds
+monit_check_interval: 120  # time interval to check services in seconds
 # Whether the role should setup monit or not. Setting monit_setup_mode
 # to true will:
 #  - Install and enable the monit service
@@ -161,8 +162,8 @@ monit_postgresql_number_slow_query_script: |
     echo "More than ${thresholdNoQueries} PostgreSQL queries took longer than ${thresholdQueryTime} to execute"
     exit 1
   fi
-monit_postgresql_number_slow_queries_threshold: 5 # Number of queries that if deemed as slow, health check fails
-monit_postgresql_number_slow_query_min_time: "1 minute" # Time above which a running query will be deemed as slow
+monit_postgresql_number_slow_queries_threshold: 5  # Number of queries that if deemed as slow, health check fails
+monit_postgresql_number_slow_query_min_time: "1 minute"  # Time above which a running query will be deemed as slow
 monit_postgresql_number_slow_queries_script_name: "postgresql-number-slow-queries"
 monit_postgresql_number_connections_script: |
   #!/bin/bash
@@ -190,7 +191,7 @@ monit_postgresql_number_connections_script: |
     echo "PostgreSQL's current number of connections (${curConnections}) is more than ${expandedConnThreshold} which is ${connThreshold} of the maximum number of allowed connections (${maxConnections})"
     exit 1
   fi
-monit_postgresql_number_connections_threshold: 0.9 # Ratio of maximum number of PostgreSQL connections which if the number of active connections is crossed, the health check fails
+monit_postgresql_number_connections_threshold: 0.9  # Ratio of maximum number of PostgreSQL connections which if the number of active connections is crossed, the health check fails
 monit_postgresql_number_connections_script_name: "postgresql-number-connections"
 monit_postgresql_health_scripts:
   - name: "{{ monit_postgresql_number_connections_script_name }}"
@@ -205,3 +206,4 @@ monit_postgresql_health_scripts:
     exec_scripts:
       - slack-notification
       - opsgenie-notification
+server_monitoring_monit_scripts: ["monit", "system", "openssh-server"]

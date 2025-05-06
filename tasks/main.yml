@@ -1,12 +1,6 @@
 ---
-- include_vars: redhat.yml
-  when: ansible_facts["os_family"] == "RedHat"
-
-- include_vars: ubuntu.yml
-  when: ansible_facts["os_family"] == "Debian"
-
-- include_tasks: setup.yml
-  when: monit_setup_mode
+- name: Set up monit
+  include_tasks: setup.yml
 
 - name: Copy monit config files
   template:

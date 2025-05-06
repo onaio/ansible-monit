@@ -2,10 +2,9 @@
 - name: Install monit
   apt:
     pkg: "{{ item.package }}={{ item.version }}"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 600
   with_items:
     - { package: monit, version: "{{ monit_version }}"}
   notify:
     - restart monit
-

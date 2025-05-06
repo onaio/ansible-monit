@@ -1,21 +1,24 @@
 ---
-- include_tasks: ubuntu.yml
-  when: ansible_distribution == 'Ubuntu'
+- name: Install monit[Ubuntu]
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == 'Ubuntu' and monit_setup_mode
 
-- include_tasks: redhat.yml
-  when: ansible_facts['os_family'] == "RedHat"
+- name: Install monit[RedHat]
+  include_tasks: redhat.yml
+  when: ansible_facts['os_family'] == "RedHat" and monit_setup_mode
 
-- include_vars: redhat.yml
+- name: Include vars[RedHat]
+  include_vars: redhat.yml
   when: ansible_facts["os_family"] == "RedHat"
 
-- include_vars: ubuntu.yml
+- name: Include vars[Ubuntu]
+  include_vars: ubuntu.yml
   when: ansible_facts["os_family"] == "Debian"
 
 - name: Delete monit config files directory
   file:
     path: "{{ monit_includes }}"
     state: absent
-  ignore_errors: yes
   notify:
     - restart monit
 
@@ -60,4 +63,4 @@
   service:
     name: monit
     state: started
-    enabled: yes
+    enabled: true
