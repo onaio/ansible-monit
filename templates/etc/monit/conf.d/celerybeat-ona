@@ -1,0 +1,12 @@
+check process celerybeat-{{ service_name }}
+    matching "celery -A {{ celery_app_name }}.*beat"
+{% if uses_systemd == None or uses_systemd == False %}
+    start program = "/etc/init.d/celerybeat-ona start" as uid root and gid root
+    stop program = "/etc/init.d/celerybeat-ona stop" as uid root and gid root
+{% else %}
+    start program = "/bin/systemctl start celerybeat-{{ service_name }}" with timeout 60 seconds
+    stop program = "/bin/systemctl stop celerybeat-{{ service_name }}" with timeout 60 seconds
+{% endif %}
+    if does not exist for 3 cycles then restart
+    if 7 restarts within 10 cycles then unmonitor
+    group celery
