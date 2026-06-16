@@ -101,10 +101,11 @@
 
   set mail-format {
       from: {{ monit_mail_from | default('noreply@ona.io') }}
-      subject: monit alert -- $EVENT $SERVICE on $HOST
+      subject: [{{ monit_mail_alert_label | default(inventory_hostname) }}] monit alert -- $EVENT $SERVICE
       message: $EVENT Service $SERVICE
+               Deployment:  {{ monit_mail_alert_label | default(inventory_hostname) }}
+               Host:        {{ inventory_hostname }}
                Date:        $DATE
-               Host:        $HOST
                Action:      $ACTION
                Description: $DESCRIPTION
   }
