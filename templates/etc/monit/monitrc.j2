@@ -91,11 +91,6 @@
       and monit_mail_smtp_host is defined
       and monit_mail_smtp_login is defined
       and monit_mail_smtp_password is defined %}
-###############################################################################
-## Mail alerting (opt-in). Enabled when monit_mail_alert_recipients AND a mail
-## relay (monit_mail_smtp_host) are defined. See
-## docs/superpowers/specs/2026-06-16-monit-email-slack-alerting-design.md
-###############################################################################
   set mailserver {{ monit_mail_smtp_host }} port {{ monit_mail_smtp_port | default(587) }}
       username "{{ monit_mail_smtp_login }}" password "{{ monit_mail_smtp_password }}" using tls
 
@@ -110,8 +105,6 @@
                Description: $DESCRIPTION
   }
 
-  ## Each recipient must be a single valid email address (a Slack channel inbound
-  ## address counts). Values are not sanitised; do not include newlines or braces.
 {% for recipient in monit_mail_alert_recipients %}
   set alert {{ recipient }} not on { instance, action }
 {% endfor %}

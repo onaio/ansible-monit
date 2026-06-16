@@ -28,9 +28,6 @@
 {% endfor %}
  check file sshd_rc with path /etc/ssh/sshd_config
    group sshd
-   # Inlined from the bundled /etc/monit/templates/rootrc, but expecting 0600
-   # (hardened/OpenSSH-recommended) instead of its 0644, which false-alarms on
-   # locked-down hosts. Keeps rootrc's checksum + uid/gid checks unchanged.
    if changed checksum      then alert
    if failed permission 600 then unmonitor
    if failed uid root       then unmonitor
