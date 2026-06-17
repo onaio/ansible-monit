@@ -1,0 +1,14 @@
+{% for worker in celery_workers %}
+check process celeryd-{{ worker }}
+    with pidfile /var/run/celery-onadata/{{ worker }}.pid
+{% if uses_systemd is not defined or not uses_systemd %}
+    start program = "/etc/init.d/celeryd-onadata start" as uid root and gid root
+    stop program  = "/etc/init.d/celeryd-onadata stop" as uid root and gid root
+{% else %}
+    start program = "/bin/systemctl start celeryd-onadata"
+    stop program  = "/bin/systemctl stop celeryd-onadata"
+{% endif %}
+    if 5 restarts within 10 cycles then timeout
+    if totalmem is greater than 3000.0 MB for 3 cycles then restart
+    group celery
+{% endfor %}
