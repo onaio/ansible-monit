@@ -18,4 +18,4 @@
 
  check file rsyslog_file with path /var/log/syslog
    group rsyslogd
-   if timestamp > 65 minutes then exec /etc/monit/slack_notifications.sh
+   if timestamp > 65 minutes then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}

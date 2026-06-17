@@ -9,7 +9,7 @@
    stop program  = "/bin/systemctl stop memcached"
 {% endif %}
    if failed host 127.0.0.1 port 11211 and protocol memcache then restart
-   if cpu > 60% for 2 cycles then exec /etc/monit/slack_notifications.sh
+   if cpu > 60% for 2 cycles then exec {{ monit_exec_script_dir }}/{{ monit_default_exec_script }}
    if cpu > 98% for 5 cycles then restart
    if 5 restarts within 20 cycles then timeout
    depend memcache_bin

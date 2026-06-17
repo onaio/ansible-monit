@@ -1,9 +1,35 @@
 check system localhost
-    if loadavg (5min) > 12 for 4 cycles then exec /etc/monit/slack_notifications.sh
-    if loadavg (15min) > 8 for 4 cycles then exec /etc/monit/slack_notifications.sh
-    if memory usage > 90% then alert
-    if cpu usage (user) > 90% for 3 cycles then exec /etc/monit/slack_notifications.sh
-    if cpu usage (system) > 90% for 3 cycles then exec /etc/monit/slack_notifications.sh
+{% for cur_loadavg_threshold in monit_system_loadavg_thresholds %}
+{% for cur_script in cur_loadavg_threshold.exec_scripts %}
+    if loadavg ({{ cur_loadavg_threshold.period }}) {{ cur_loadavg_threshold.operator }} {{ cur_loadavg_threshold.value }} for {{ cur_loadavg_threshold.cycles }} cycles then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% endfor %}
+{% endfor %}
+{% for cur_memory_threshold in monit_system_memory_usage_thresholds %}
+{% for cur_script in cur_memory_threshold.exec_scripts %}
+    if memory usage {{ cur_memory_threshold.operator }} {{ cur_memory_threshold.value }} for {{ cur_memory_threshold.cycles }} cycles then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% endfor %}
+{% endfor %}
+{% for cur_cpu_usage_threshold in monit_system_cpu_usage_thresholds %}
+{% for cur_script in cur_cpu_usage_threshold.exec_scripts %}
+    if cpu usage ({{ cur_cpu_usage_threshold.type }}) {{ cur_cpu_usage_threshold.operator }} {{ cur_cpu_usage_threshold.value }} for {{ cur_cpu_usage_threshold.cycles }} cycles then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% endfor %}
+{% endfor %}
 
-check filesystem rootfs with path /
-    if space usage > 80% then exec /etc/monit/slack_notifications.sh
+{% for cur_mount_name,cur_mount_value in monit_system_mounts.items() %}
+check filesystem {{ cur_mount_name }} with path {{ cur_mount_value.path }}
+{% for cur_threshold in cur_mount_value.thresholds %}
+{% for cur_script in cur_threshold.exec_scripts %}
+    if space usage {{ cur_threshold.operator }} {{ cur_threshold.value }} then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% endfor %}
+{% endfor %}
+{% if cur_mount_value.mount_check.enabled == true %}
+
+{% set cur_mount_test_path_dirty =  cur_mount_value.path ~ '/' ~ cur_mount_value.mount_check.test_file.path %}
+{% set cur_mount_test_path = cur_mount_test_path_dirty | replace('//', '/') %}
+check {{ cur_mount_value.mount_check.test_file.type }} {{ cur_mount_test_path | replace('/', '_') }} with path {{ cur_mount_test_path }}
+{% for cur_script in cur_mount_value.mount_check.exec_scripts %}
+    if does not exist then exec {{ monit_exec_script_dir }}/{{ cur_script }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}

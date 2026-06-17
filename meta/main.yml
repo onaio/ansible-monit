@@ -8,5 +8,5 @@ galaxy_info:
       verions:
       - xenial
       - trusty
-  categories:
+  galaxy_tags:
     - monit

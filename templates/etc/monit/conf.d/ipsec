@@ -1,0 +1,13 @@
+{% for ipsec_host in monit_ipsec_hosts %}
+check host {{ ipsec_host.name }} with address {{ ipsec_host.address }}
+    start program = "{{ monit_ipsec_bin_path }} start"
+    stop program = "{{ monit_ipsec_bin_path }} stop"
+    if failed
+        port {{ ipsec_host.port }}
+        type {{ ipsec_host.type }}
+    then restart
+{% for script in ipsec_host.exec_scripts %}
+    if 3 restarts within 3 cycles then exec {{ monit_exec_script_dir }}/{{ script }}
+{% endfor %}
+
+{% endfor %}

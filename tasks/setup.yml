@@ -2,17 +2,18 @@
 - include_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
-- name: Copy monitrc configuration file
-  template:
-    src: "templates/etc/monit/monitrc.j2"
-    dest: "/etc/monit/monitrc"
-    mode: 0600
-  notify:
-    - restart monit
+- include_tasks: redhat.yml
+  when: ansible_facts['os_family'] == "RedHat"
+
+- include_vars: redhat.yml
+  when: ansible_facts["os_family"] == "RedHat"
+
+- include_vars: ubuntu.yml
+  when: ansible_facts["os_family"] == "Debian"
 
 - name: Delete monit config files directory
   file:
-    path: /etc/monit/conf.d
+    path: "{{ monit_includes }}"
     state: absent
   ignore_errors: yes
   notify:
@@ -20,7 +21,7 @@
 
 - name: Create monit config files directory
   file:
-    path: /etc/monit/conf.d
+    path: "{{ monit_includes }}"
     state: directory
     mode: 0755
     owner: root
@@ -28,15 +29,35 @@
   notify:
     - restart monit
 
-- name: Copy monit slack script
+- name: Copy monitrc configuration file
   template:
-    src: "templates/etc/monit/slack_notifications.sh"
-    dest: "/etc/monit/slack_notifications.sh"
-    mode: 0744
+    src: "templates/etc/monit/monitrc.j2"
+    dest: "{{ monit_configuration_path }}"
+    mode: 0600
+  notify:
+    - restart monit
+
+- name: Create the scripts directory
+  file:
+    path: "{{ monit_exec_script_dir }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Copy scripts
+  copy:
+    dest: "{{ monit_exec_script_dir }}/{{ item.name }}"
+    content: "{{ item.content }}"
+    mode: 0755
+    owner: root
+    group: root
+  with_items: "{{ monit_exec_scripts }}"
   notify:
     - restart monit
 
 - name: Enable the Monit service
   service:
     name: monit
+    state: started
     enabled: yes

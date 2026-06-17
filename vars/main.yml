@@ -1,0 +1,2 @@
+---
+monit_exec_script_dir: "/etc/monit/exec-scripts"

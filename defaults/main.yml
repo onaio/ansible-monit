@@ -1,5 +1,6 @@
 # general
-monit_version: "1:5.16*"
+monit_version: "1:5.*"
+monit_install_only: false
 monit_template_scripts: []
 monit_scripts: []
 monit_log_file: "/var/log/monit.log"
@@ -9,7 +10,7 @@ monit_check_interval: 120 # time interval to check services in seconds
 #  - Install and enable the monit service
 #  - clear /etc/monit/conf.d before copying over whatever's specified
 #    in monit_scripts and monit_template_scripts
-monit_setup_mode: False
+monit_setup_mode: false
 
 # nginx
 monit_nginx_pid_file: "/var/run/nginx.pid"
@@ -21,7 +22,6 @@ monit_nginx_bin_path: "/usr/sbin/nginx"
 # slack
 monit_slack_channel: "#devops-logs"
 monit_slack_username: "Monit"
-monit_hostname: "{{ ansible_ssh_host }}"
 
 # systemd
 monit_uses_systemd: true
@@ -36,3 +36,172 @@ monit_enketo_port: 8005
 monit_ssh_host_keys:
   - name: "sshd_rsa_key"
     path: "/etc/ssh/ssh_host_rsa_key"
+
+# system
+# List of paths to monitor for space
+monit_system_mounts:
+  rootfs:
+    path: "/"
+    thresholds:
+      - value: "80%"
+        operator: ">"
+        exec_scripts:
+          - slack-notification
+      - value: "90%"
+        operator: ">"
+        exec_scripts:
+          - slack-notification
+          - opsgenie-notification
+    mount_check:
+      enabled: true
+      test_file:
+        path: "sys"
+        type: "directory"
+      exec_scripts:
+        - slack-notification
+        - opsgenie-notification
+# List of thresholds for the system's load average
+monit_system_loadavg_thresholds:
+  - period: "5min"
+    operator: ">"
+    value: "12"
+    cycles: 4
+    exec_scripts:
+      - slack-notification
+  - period: "15min"
+    operator: ">"
+    value: "8"
+    cycles: 4
+    exec_scripts:
+      - slack-notification
+# List of thresholds for the system's memory usage
+monit_system_memory_usage_thresholds:
+  - value: "90%"
+    operator: ">"
+    cycles: 3
+    exec_scripts:
+      - slack-notification
+# List of thresholds for the system's CPU usage
+monit_system_cpu_usage_thresholds:
+  - type: user
+    value: "90%"
+    operator: ">"
+    cycles: 3
+    exec_scripts:
+      - slack-notification
+  - type: system
+    value: "90%"
+    operator: ">"
+    cycles: 3
+    exec_scripts:
+      - slack-notification
+
+# ipsec
+monit_ipsec_bin_path: "/usr/sbin/ipsec"
+monit_ipsec_hosts: []
+
+# executable scripts
+monit_default_exec_script: "slack-notification"
+monit_exec_scripts:
+  - name: "slack-notification"
+    content: "{{ monit_slack_notification_script }}"
+  - name: "opsgenie-notification"
+    content: "{{ monit_opsgenie_notification_script }}"
+  - name: "{{ monit_postgresql_number_slow_queries_script_name }}"
+    content: "{{ monit_postgresql_number_slow_query_script }}"
+  - name: "{{ monit_postgresql_number_connections_script_name }}"
+    content: "{{ monit_postgresql_number_connections_script }}"
+monit_slack_notification_script: |
+  #!/bin/bash
+  /usr/bin/curl \
+      -X POST \
+      -s \
+      --data-urlencode "payload={ \
+          \"channel\": \"{{ monit_slack_channel }}\", \
+          \"username\": \"{{ monit_slack_username }}\", \
+          \"icon_emoji\": \":ghost:\", \
+          \"attachments\": [{\
+              \"color\": \"warning\", \
+              \"pretext\": \"$(hostname) | $MONIT_DATE\", \
+              \"text\": \"$MONIT_SERVICE - $MONIT_DESCRIPTION\" \
+          }], \
+          \"link_names\": 1 \
+      }" \
+      https://hooks.slack.com/services/{{ slack_monit_endpoint }}
+monit_opsgenie_notification_script: |
+  #!/bin/bash
+  curl -X POST https://api.opsgenie.com/v2/alerts \
+      -H "Content-Type: application/json" \
+      -H "Authorization: GenieKey {{ monit_opsgenie_api_key }}" \
+      -d \
+  "{
+      \"message\": \"$(hostname): monit - ${MONIT_SERVICE}\",
+      \"alias\": \"monit-$(hostname)-${MONIT_SERVICE}\",
+      \"description\":\"${MONIT_DESCRIPTION}\",
+      \"priority\":\"P3\"
+  }"
+monit_opsgenie_api_key: ""
+monit_postgresql_system_user: "postgres"
+monit_postgresql_number_slow_query_script: |
+  #!/bin/bash
+  set -Eeuo pipefail
+
+  thresholdNoQueries={{ monit_postgresql_number_slow_queries_threshold }}
+  thresholdQueryTime="{{ monit_postgresql_number_slow_query_min_time }}"
+
+  noSlowQueries=$(runuser -l {{ monit_postgresql_system_user }} -c "psql --tuples-only -c \"SELECT count(pid) FROM pg_stat_activity where now() - query_start > interval '${thresholdQueryTime}' AND state != 'idle';\"" | xargs)
+
+  re='^[0-9]+$'
+  if ! [[ $noSlowQueries =~ $re ]] ; then
+    echo "Number of slow PostgreSQL queries is not a number: ${noSlowQueries}"
+    exit 1
+  fi
+
+  if [[ "$noSlowQueries" -gt "$thresholdNoQueries" ]] ; then
+    echo "More than ${thresholdNoQueries} PostgreSQL queries took longer than ${thresholdQueryTime} to execute"
+    exit 1
+  fi
+monit_postgresql_number_slow_queries_threshold: 5 # Number of queries that if deemed as slow, health check fails
+monit_postgresql_number_slow_query_min_time: "1 minute" # Time above which a running query will be deemed as slow
+monit_postgresql_number_slow_queries_script_name: "postgresql-number-slow-queries"
+monit_postgresql_number_connections_script: |
+  #!/bin/bash
+  set -Eeuo pipefail
+
+  connThreshold={{ monit_postgresql_number_connections_threshold }}
+
+  curConnections=$(runuser -l {{ monit_postgresql_system_user }} -c "psql --tuples-only -c \"SELECT sum(numbackends) FROM pg_stat_database;\"" | xargs)
+  maxConnections=$(runuser -l {{ monit_postgresql_system_user }} -c "psql --tuples-only -c \"SELECT setting FROM pg_settings WHERE name = 'max_connections';\"" | xargs)
+
+  expandedConnThreshold=$(python3 -c "print('%d' % round(${maxConnections} * ${connThreshold}))")
+
+  re='^[0-9]+$'
+  if ! [[ $curConnections =~ $re ]] ; then
+    echo "Current number of PostgreSQL connections is not a number: ${curConnections}"
+    exit 1
+  fi
+
+  if ! [[ $expandedConnThreshold =~ $re ]] ; then
+    echo "PostgreSQL connection threshold is not a number: ${expandedConnThreshold}"
+    exit 1
+  fi
+
+  if [[ "$curConnections" -gt "$expandedConnThreshold" ]] ; then
+    echo "PostgreSQL's current number of connections (${curConnections}) is more than ${expandedConnThreshold} which is ${connThreshold} of the maximum number of allowed connections (${maxConnections})"
+    exit 1
+  fi
+monit_postgresql_number_connections_threshold: 0.9 # Ratio of maximum number of PostgreSQL connections which if the number of active connections is crossed, the health check fails
+monit_postgresql_number_connections_script_name: "postgresql-number-connections"
+monit_postgresql_health_scripts:
+  - name: "{{ monit_postgresql_number_connections_script_name }}"
+    cycles: 3
+    timeout: "30 seconds"
+    exec_scripts:
+      - slack-notification
+      - opsgenie-notification
+  - name: "{{ monit_postgresql_number_slow_queries_script_name }}"
+    cycles: 3
+    timeout: "30 seconds"
+    exec_scripts:
+      - slack-notification
+      - opsgenie-notification

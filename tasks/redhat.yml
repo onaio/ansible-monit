@@ -1,0 +1,23 @@
+---
+- name: Add epel-release (CentOS)
+  yum:
+    name: epel-release
+    state: latest
+  when: ansible_distribution == 'CentOS'
+
+- name: Add RPM Key
+  rpm_key:
+    key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+  when: ansible_distribution == 'RedHat'
+
+- name: Add epel-release (RedHat)
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
+    state: latest
+  when: ansible_distribution == 'RedHat'
+
+- name: Install Monit (RedHat)
+  yum:
+    name: monit
+    state: latest
+
