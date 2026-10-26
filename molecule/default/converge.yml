@@ -4,6 +4,7 @@
   become: true
   vars:
     monit_setup_mode: true
+    slack_monit_endpoint: "https://hooks.slack.invalid/services/test"
     monit_scripts:
       - monit
       - system
