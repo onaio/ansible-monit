@@ -19,5 +19,13 @@ provisioner:
   name: ansible
 scenario:
   name: default
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - converge
+    # Setup mode recreates conf.d on every run, so idempotence does not apply
+    - verify
+    - destroy
 verifier:
   name: ansible
