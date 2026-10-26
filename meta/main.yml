@@ -1,12 +1,14 @@
 galaxy_info:
+  role_name: monit
+  namespace: onaio
   author: Ona Engineering
   description: This role is used to install and configure Monit``
   min_ansible_version: 2.4
   license: Apache 2
   platforms:
     - name: Ubuntu
-      verions:
-      - xenial
-      - trusty
+      versions:
+        - 22.04
+        - 24.04
   galaxy_tags:
     - monit

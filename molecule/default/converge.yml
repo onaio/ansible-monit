@@ -1,0 +1,19 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    monit_setup_mode: true
+    monit_scripts:
+      - monit
+      - system
+      - cron
+      - openssh-server
+      - rsyslog
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      changed_when: false
+  roles:
+    - role: ../../..

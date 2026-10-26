@@ -1,0 +1,16 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check the monit configuration
+      ansible.builtin.command: monit -t
+      changed_when: false
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Assert monit is running
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services['monit.service'].state == 'running'
