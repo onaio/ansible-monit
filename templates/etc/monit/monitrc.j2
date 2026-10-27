@@ -86,6 +86,29 @@
   set eventqueue
       basedir /var/lib/monit/events # set the base directory where events will be stored
       slots 100                     # optionally limit the queue size
+
+{% if monit_mail_alert_recipients | default([]) | length > 0
+      and monit_mail_smtp_host is defined
+      and monit_mail_smtp_login is defined
+      and monit_mail_smtp_password is defined %}
+  set mailserver {{ monit_mail_smtp_host }} port {{ monit_mail_smtp_port | default(587) }}
+      username "{{ monit_mail_smtp_login }}" password "{{ monit_mail_smtp_password }}" using tls
+
+  set mail-format {
+      from: {{ monit_mail_from | default('noreply@ona.io') }}
+      subject: [{{ monit_mail_alert_label | default(inventory_hostname) }}] monit alert -- $EVENT $SERVICE
+      message: $EVENT Service $SERVICE
+               Deployment:  {{ monit_mail_alert_label | default(inventory_hostname) }}
+               Host:        {{ inventory_hostname }}
+               Date:        $DATE
+               Action:      $ACTION
+               Description: $DESCRIPTION
+  }
+
+{% for recipient in monit_mail_alert_recipients %}
+  set alert {{ recipient }} not on { instance, action }
+{% endfor %}
+{% endif %}
 #
 #
 ## Send status and events to M/Monit (for more informations about M/Monit

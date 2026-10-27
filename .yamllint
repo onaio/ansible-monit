@@ -1,0 +1,20 @@
+---
+extends: default
+
+rules:
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: false
+  braces:
+    max-spaces-inside: 1
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true
+  line-length:
+    max: 160
+    # Embedded shell scripts that can't be wrapped
+    ignore: |
+      defaults/main.yml
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false

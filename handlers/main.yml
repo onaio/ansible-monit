@@ -1,10 +1,11 @@
 ---
-- name: restart monit
-  service:
+- name: Restart monit
+  ansible.builtin.service:
     name: monit
     state: restarted
   when: not monit_install_only
 
-- name: enable monit plugins
-  command: "monit monitor all"
+- name: Enable monit plugins
+  ansible.builtin.command: "monit monitor all"
+  changed_when: true
   when: not monit_install_only

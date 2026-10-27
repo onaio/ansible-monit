@@ -1,63 +1,66 @@
 ---
-- include_tasks: ubuntu.yml
+- name: Install monit on Ubuntu
+  ansible.builtin.include_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
-- include_tasks: redhat.yml
+- name: Install monit on RedHat
+  ansible.builtin.include_tasks: redhat.yml
   when: ansible_facts['os_family'] == "RedHat"
 
-- include_vars: redhat.yml
+- name: Load RedHat variables
+  ansible.builtin.include_vars: redhat.yml
   when: ansible_facts["os_family"] == "RedHat"
 
-- include_vars: ubuntu.yml
+- name: Load Ubuntu variables
+  ansible.builtin.include_vars: ubuntu.yml
   when: ansible_facts["os_family"] == "Debian"
 
 - name: Delete monit config files directory
-  file:
+  ansible.builtin.file:
     path: "{{ monit_includes }}"
     state: absent
-  ignore_errors: yes
   notify:
-    - restart monit
+    - Restart monit
 
 - name: Create monit config files directory
-  file:
+  ansible.builtin.file:
     path: "{{ monit_includes }}"
     state: directory
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
   notify:
-    - restart monit
+    - Restart monit
 
 - name: Copy monitrc configuration file
-  template:
+  ansible.builtin.template:
     src: "templates/etc/monit/monitrc.j2"
     dest: "{{ monit_configuration_path }}"
-    mode: 0600
+    mode: "0600"
   notify:
-    - restart monit
+    - Restart monit
 
 - name: Create the scripts directory
-  file:
+  ansible.builtin.file:
     path: "{{ monit_exec_script_dir }}"
     state: directory
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
 
 - name: Copy scripts
-  copy:
+  ansible.builtin.copy:
     dest: "{{ monit_exec_script_dir }}/{{ item.name }}"
     content: "{{ item.content }}"
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
   with_items: "{{ monit_exec_scripts }}"
   notify:
-    - restart monit
+    - Restart monit
 
 - name: Enable the Monit service
-  service:
+  ansible.builtin.service:
     name: monit
     state: started
-    enabled: yes
+    enabled: true

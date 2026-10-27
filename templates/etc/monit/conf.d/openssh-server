@@ -28,5 +28,8 @@
 {% endfor %}
  check file sshd_rc with path /etc/ssh/sshd_config
    group sshd
-   include /etc/monit/templates/rootrc
+   if changed checksum      then alert
+   if failed permission 600 then unmonitor
+   if failed uid root       then unmonitor
+   if failed gid root       then unmonitor
 
