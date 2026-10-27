@@ -1,3 +1,4 @@
+---
 # general
 monit_version: "1:5.*"
 monit_install_only: false

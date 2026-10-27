@@ -12,6 +12,9 @@ rules:
     forbid-explicit-octal: true
   line-length:
     max: 160
+    # Embedded shell scripts that can't be wrapped
+    ignore: |
+      defaults/main.yml
   truthy:
     allowed-values: ["true", "false"]
     check-keys: false

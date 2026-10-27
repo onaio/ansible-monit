@@ -1,29 +1,32 @@
 ---
-- include_vars: redhat.yml
+- name: Load RedHat variables
+  ansible.builtin.include_vars: redhat.yml
   when: ansible_facts["os_family"] == "RedHat"
 
-- include_vars: ubuntu.yml
+- name: Load Ubuntu variables
+  ansible.builtin.include_vars: ubuntu.yml
   when: ansible_facts["os_family"] == "Debian"
 
-- include_tasks: setup.yml
+- name: Install and set up monit
+  ansible.builtin.include_tasks: setup.yml
   when: monit_setup_mode
 
 - name: Copy monit config files
-  template:
+  ansible.builtin.template:
     src: "templates/etc/monit/conf.d/{{ item }}"
     dest: "{{ monit_includes }}/{{ item }}"
-    mode: 0644
+    mode: "0644"
   with_items: "{{ monit_scripts }}"
   notify:
-    - restart monit
-    - enable monit plugins
+    - Restart monit
+    - Enable monit plugins
 
 - name: Copy monit template config files
-  template:
+  ansible.builtin.template:
     src: "templates/etc/monit/conf.d/{{ item }}"
     dest: "{{ monit_includes }}/{{ item }}-{{ service_name }}"
-    mode: 0644
+    mode: "0644"
   with_items: "{{ monit_template_scripts }}"
   notify:
-    - restart monit
-    - enable monit plugins
+    - Restart monit
+    - Enable monit plugins
